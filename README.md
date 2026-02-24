@@ -36,22 +36,17 @@ module mux4_gate (
     input  wire S0, S1,
     output wire Y
 );
-
-    // Internal wires
     wire S0_bar, S1_bar;
     wire w0, w1, w2, w3;
 
-    // NOT gates
     not (S0_bar, S0);
     not (S1_bar, S1);
 
-    // AND gates
-    and (w0, I0, S1_bar, S0_bar); // 00
-    and (w1, I1, S1_bar, S0);     // 01
-    and (w2, I2, S1, S0_bar);     // 10
-    and (w3, I3, S1, S0);         // 11
+    and (w0, I0, S1_bar, S0_bar);
+    and (w1, I1, S1_bar, S0);   
+    and (w2, I2, S1, S0_bar);    
+    and (w3, I3, S1, S0);    
 
-    // OR gate
     or (Y, w0, w1, w2, w3);
 
 endmodule
@@ -63,20 +58,14 @@ reg I0, I1, I2, I3;
 reg S0, S1;
 wire Y;
 
-mux4_gate uut (
-    .I0(I0), .I1(I1), .I2(I2), .I3(I3),
-    .S0(S0), .S1(S1),
-    .Y(Y)
-);
-
-initial begin
-    I0 = 0; I1 = 0; I2 = 0; I3 = 0;
-    S0 = 0; S1 = 0;
+mux4_gate uut (I0,I1,I2,I3,S0,S1,Y);
+initial
+begin
+    I0 = 0; I1 = 0; I2 = 0; I3 = 0;S0 = 0; S1 = 0;
     #10 I0 = 1; I1 = 0; I2 = 0; I3 = 0; S1 = 0; S0 = 0;
     #10 I0 = 0; I1 = 1; I2 = 0; I3 = 0; S1 = 0; S0 = 1;
     #10 I0 = 0; I1 = 0; I2 = 1; I3 = 0; S1 = 1; S0 = 0;
     #10 I0 = 0; I1 = 0; I2 = 0; I3 = 1; S1 = 1; S0 = 1;
-    #10 $stop;
 end
 endmodule
 ```
@@ -102,13 +91,10 @@ reg I0, I1, I2, I3;
 reg S0, S1;
 wire Y;
 
-mux4_gate uut (
-    .I0(I0), .I1(I1), .I2(I2), .I3(I3),
-    .S0(S0), .S1(S1),
-    .Y(Y)
-);
+mux4_gate uut (I0, I1, I2, I3,S0, S1,Y);
 
-initial begin
+initial
+begin
     I0 = 0; I1 = 0; I2 = 0; I3 = 0;
     S0 = 0; S1 = 0;
     #10 I0 = 1; I1 = 0; I2 = 0; I3 = 0; S1 = 0; S0 = 0;
@@ -152,7 +138,7 @@ reg A, B, C, D;
 reg S0, S1;
 wire Y;
 
-mux4_to_1_behavioral uut (.A(A),.B(B),.C(C),.D(D),.S0(S0),.S1(S1),.Y(Y));
+mux4_to_1_behavioral uut (A,B,C,D,S0,S1,Y);
 initial 
 begin
     A = 0; B = 0; C = 0; D = 0;
@@ -203,7 +189,7 @@ reg A, B, C, D;
 reg S0, S1;
 wire Y;
 
-mux4_to_1_behavioral uut (.A(A),.B(B),.C(C),.D(D),.S0(S0),.S1(S1),.Y(Y));
+mux4_to_1_behavioral uut (A,B,C,D,S0,S1,Y);
 initial 
 begin
     A = 0; B = 0; C = 0; D = 0;
