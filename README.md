@@ -31,180 +31,201 @@ Vivado 2023.1
 # Verilog Code
 4:1 MUX Gate-Level Implementation
 ```
-module mux4_gate (
-    input  wire I0, I1, I2, I3,
-    input  wire S0, S1,
-    output wire Y
-);
-    wire S0_bar, S1_bar;
-    wire w0, w1, w2, w3;
-
-    not (S0_bar, S0);
-    not (S1_bar, S1);
-
-    and (w0, I0, S1_bar, S0_bar);
-    and (w1, I1, S1_bar, S0);   
-    and (w2, I2, S1, S0_bar);    
-    and (w3, I3, S1, S0);    
-
-    or (Y, w0, w1, w2, w3);
-
+module mux_4_1_gl(A,B,C,D,S1,S2,Y);
+    input A,B,C,D,S1,S2;
+    output Y;
+    wire p,q,w1,w2,w3,w4;
+    not (p,S1);
+    not (q,S2);
+    and (w1,A,p,q);
+    and (w2,B,p,S2);
+    and (w3,C,S1,q);
+    and (w4,D,S1,S2);
+    or (Y,w1,w2,w3,w4);    
 endmodule
 ```
 4:1 MUX Gate-Level Implementation- Testbench
 ```
-module tb_mux4_gate;
-reg I0, I1, I2, I3;
-reg S0, S1;
-wire Y;
+module mux_4_1_tb;
 
-mux4_gate uut (I0,I1,I2,I3,S0,S1,Y);
-initial
-begin
-    I0 = 0; I1 = 0; I2 = 0; I3 = 0;S0 = 0; S1 = 0;
-    #10 I0 = 1; I1 = 0; I2 = 0; I3 = 0; S1 = 0; S0 = 0;
-    #10 I0 = 0; I1 = 1; I2 = 0; I3 = 0; S1 = 0; S0 = 1;
-    #10 I0 = 0; I1 = 0; I2 = 1; I3 = 0; S1 = 1; S0 = 0;
-    #10 I0 = 0; I1 = 0; I2 = 0; I3 = 1; S1 = 1; S0 = 1;
-end
+    reg a,b,c,d;
+    reg s1,s2;
+    wire y;
+
+    mux_4_1_gl dut (a,b,c,d,s1,s2,y);
+
+    initial 
+    begin
+        a=1'b0;
+        b=1'b0;
+        c=1'b1;
+        d=1'b0;
+        s2=1'b1;
+        s1=1'b0;
+    #100
+        a=1'b1;
+        b=1'b0;
+        c=1'b0;
+        d=1'b1;
+        s2=1'b1;
+        s1=1'b1;
+    end
+
 endmodule
 ```
 # Simulated Output Gate Level Modelling
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/e6b31c36-868b-4e29-8d50-c0cfa916444a" />
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/d1a975d8-c1a8-4d74-8563-6aca0f52ff1f" />
 
 
 4:1 MUX Data flow Modelling
 ```
-module mux4_dataflow (
-    input  wire I0, I1, I2, I3,
-    input  wire S0, S1,
-    output wire Y
-);
-    assign Y = (~S1 & ~S0 & I0) |(~S1 &  S0 & I1) | S1 & ~S0 & I2) | ( S1 &  S0 & I3);
+module mux_4_1_df(a,b,c,d,s1,s0,y);
+    input a,b,c,d,s1,s0;
+    output y;
+    
+    assign y =   (s1 == 0 && s0 == 0) ? a:
+                 (s1 == 0 && s0 == 1) ? b:
+                 (s1 == 1 && s0 == 0) ? c: 
+                 (s1 == 1 && s0 == 1) ? d: 1'b0;
+                                         
 endmodule
-
 ```
 4:1 MUX Data flow Modelling- Testbench
 ```
-module tb_mux4_gate;
-reg I0, I1, I2, I3;
-reg S0, S1;
-wire Y;
+module mux_4_1_tb;
 
-mux4_gate uut (I0, I1, I2, I3,S0, S1,Y);
+    reg a,b,c,d;
+    reg s1,s2;
+    wire y;
 
-initial
-begin
-    I0 = 0; I1 = 0; I2 = 0; I3 = 0;
-    S0 = 0; S1 = 0;
-    #10 I0 = 1; I1 = 0; I2 = 0; I3 = 0; S1 = 0; S0 = 0;
-    #10 I0 = 0; I1 = 1; I2 = 0; I3 = 0; S1 = 0; S0 = 1;
-    #10 I0 = 0; I1 = 0; I2 = 1; I3 = 0; S1 = 1; S0 = 0;
-    #10 I0 = 0; I1 = 0; I2 = 0; I3 = 1; S1 = 1; S0 = 1;
-    #10 $stop;
-end
+    mux_4_1_gl dut (a,b,c,d,s1,s2,y);
+
+    initial 
+    begin
+        a=1'b1;
+        b=1'b0;
+        c=1'b1;
+        d=1'b0;
+        s2=1'b1;
+        s1=1'b0;
+    #100
+        a=1'b1;
+        b=1'b0;
+        c=1'b0;
+        d=1'b1;
+        s2=1'b1;
+        s1=1'b1;
+    end
+
 endmodule
 ```
 # Simulated Output Dataflow Modelling
-<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/62e5d650-4847-4703-87fa-13a3ead5e66a" />
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/1b651fdb-fd4e-41f4-87a0-70f49652fea5" />
 
 
 4:1 MUX Behavioral Implementation
 ```
-module mux4_to_1_behavioral (
-    input wire A,
-    input wire B,
-    input wire C,
-    input wire D,
-    input wire S0,
-    input wire S1,
-    output reg Y
-);
-    always @(*) begin
-        case ({S1,S0})
-            2'b00: Y = A;  
-            2'b01: Y = B;   
-            2'b10: Y = C;   
-            2'b11: Y = D;   
-            default: Y = 0;
+module mux_4_1_bhv(a,b,c,d,s,y);
+    input a,b,c,d;
+    input [1:0] s;
+    output reg y;
+    always @(*) 
+    begin
+        case (s)
+            2'b00: y = a;
+            2'b01: y = b;
+            2'b10: y = c;
+            2'b11: y = d;
+            default: y = 1'b0;
         endcase
     end
 endmodule
 ```
 #4:1 MUX Behavioral Modelling- Testbench
 ```
-module tb_mux4_to_1_behavioral;
-reg A, B, C, D;
-reg S0, S1;
-wire Y;
+module mux_4_1_tb;
 
-mux4_to_1_behavioral uut (A,B,C,D,S0,S1,Y);
-initial 
-begin
-    A = 0; B = 0; C = 0; D = 0;
-    S0 = 0; S1 = 0;
-    #10 A = 1; B = 0; C = 0; D = 0; S1 = 0; S0 = 0;
-    #10 A = 0; B = 1; C = 0; D = 0; S1 = 0; S0 = 1;
-    #10 A = 0; B = 0; C = 1; D = 0; S1 = 1; S0 = 0;
-    #10 A = 0; B = 0; C = 0; D = 1; S1 = 1; S0 = 1;
-    #10 $stop;
-end
+    reg a,b,c,d;
+    reg s1,s2;
+    wire y;
+
+    mux_4_1_gl dut (a,b,c,d,s1,s2,y);
+
+    initial 
+    begin
+        a=1'b1;
+        b=1'b1;
+        c=1'b1;
+        d=1'b0;
+        s2=1'b1;
+        s1=1'b0;
+    #100
+        a=1'b1;
+        b=1'b0;
+        c=1'b0;
+        d=1'b1;
+        s2=1'b1;
+        s1=1'b1;
+    end
+
 endmodule
 ```
 # Simulated Output Behavioral Modelling
-<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/1074a349-2e9b-472b-9d7f-590715c00283" />
+<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/7c35347e-799d-4d64-b6ce-5700fd4df54c" />
+
 
 
 #4:1 MUX Structural Implementation
 ```
-module mux2_to_1 (
-    input wire A,
-    input wire B,
-    input wire S,
-    output wire Y
-);
-    assign Y = S ? B : A;
+module mux_4_1_str(a,b,c,d,s1,s0,y);
+    input a,b,c,d,s1,s0;
+    output y;
+    wire y1,y2;
+    
+    mux_2_1 m1 (a,b,s0,y1);
+    mux_2_1 m2 (c,d,s0,y2);
+    mux_2_1 m3 (y1,y2,s1,y);
+    
+endmodule    
+
+module mux_2_1(a,b,s,y);
+    input a,b,s;
+    output y;    
+    assign y = (s) ? b : a;
 endmodule
 
-module mux4_to_1_structural (
-    input wire A,
-    input wire B,
-    input wire C,
-    input wire D,
-    input wire S0,
-    input wire S1,
-    output wire Y
-);
-    wire w1, w2;
-    mux2_to_1 M1 (.A(A), .B(B), .S(S0), .Y(w1));
-    mux2_to_1 M2 (.A(C), .B(D), .S(S0), .Y(w2));
-    mux2_to_1 M3 (.A(w1), .B(w2), .S(S1), .Y(Y));
-
-endmodule
 ```
 # Testbench Implementation
 ```
-module tb_mux4_to_1_structural;
-reg A, B, C, D;
-reg S0, S1;
-wire Y;
+module mux_4_1_tb;
 
-mux4_to_1_behavioral uut (A,B,C,D,S0,S1,Y);
-initial 
-begin
-    A = 0; B = 0; C = 0; D = 0;
-    S0 = 0; S1 = 0;
-    #10 A = 1; B = 0; C = 0; D = 0; S1 = 0; S0 = 0;
-    #10 A = 0; B = 1; C = 0; D = 0; S1 = 0; S0 = 1;
-    #10 A = 0; B = 0; C = 1; D = 0; S1 = 1; S0 = 0;
-    #10 A = 0; B = 0; C = 0; D = 1; S1 = 1; S0 = 1;
-    #10 $stop;
-end
+    reg a,b,c,d;
+    reg s1,s2;
+    wire y;
+
+    mux_4_1_gl dut (a,b,c,d,s1,s2,y);
+
+    initial 
+    begin
+        a=1'b1;
+        b=1'b1;
+        c=1'b1;
+        d=1'b0;
+        s2=1'b1;
+        s1=1'b0;
+    #100
+        a=1'b1;
+        b=1'b0;
+        c=1'b1;
+        d=1'b1;
+        s2=1'b1;
+        s1=1'b1;
+    end
+
 endmodule
 ```
 # Simulated Output Structural Modelling
-<img width="1919" height="1079" alt="image" src="https://github.com/user-attachments/assets/16db35d0-35dd-47b2-9050-33745ec49b5d" />
-
+<img width="1913" height="1079" alt="image" src="https://github.com/user-attachments/assets/6d89d036-5c1c-4da0-aefd-08dd8500a55c" />
 
 # CONCLUSION
 In this experiment, a 4:1 Multiplexer was successfully designed and simulated using Verilog HDL across four different modeling styles: Gate-Level, Data Flow, Behavioral, and Structural.The simulation results verified the correct functionality of the MUX, with all implementations producing identical outputs for the given input conditions.
